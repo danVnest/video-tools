@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]
+then
+  echo "ERROR: at least 2 video paths must be specified as arguments"
+  exit 1
+fi
+
+for video in "$@"
+do
+  echo file \'$video\' >> merge-videos.txt
+done
+
+ffmpeg -f concat -safe 0 -i merge-videos.txt -c copy "$1".merged.mp4
+exiftool -extractEmbedded -overwrite_original -TagsFromFile "$1" "$1".merged.mp4
+
+echo "Merge completed"
+rm merge-videos.txt
