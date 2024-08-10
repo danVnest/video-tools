@@ -1,15 +1,20 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]
-then
-  echo "ERROR: a video path and a speed (i.e. 0.25 = 4x speed increase) must be specified as the first and second argument respectively"
+if [ $# -ne 2 ]; then
+  echo "ERROR: A video path and a speed (i.e. use '3' for a 3x speed increase) must be specified as the first and second arguments respectively."
   exit 1
 fi
 
-# TODO: look into this for including sound: ffmpeg -i DJI_0403.MOV -c:v libx265 -preset slow -x265-params crf=20:no-sao=1:aq-mode=3 -vsync 0 -pix_fmt yuv420p10le DJI_0403.mp4
-# ffmpeg -i merge.mp4  -filter_complex "[0:v]setpts=0.05*PTS[v];[0:a]atempo=(1/0.05)[a]" -map "[v]" -map "[a]" fast.mp4
+if ! [[ $2 =~ ^[0-9]+(\.[0-9]+)?$ ]] || (( $(echo "$2 < 0.5" | bc -l) || $(echo "$2 > 100" | bc -l) || $(echo "$2 == 1" | bc -l) )); then
+  echo "ERROR: Speed (the second argument) must be a number between 0.5 and 100, excluding 1."
+  exit 1
+fi
 
-ffmpeg -y -i "$1" -vf "setpts=$2*PTS" -r 60 "$1.speed-adjusted.mp4"
-exiftool -extractEmbedded -overwrite_original -TagsFromFile "$1" "$1".speed-adjusted.mp4
+ffmpeg -hide_banner -stats -loglevel error \
+  -i "$1" \
+  -vcodec libx265 -x265-params log-level=error -pix_fmt yuv420p -vtag hvc1 -crf 28 \
+  -movflags use_metadata_tags -map_metadata 0 \
+  -filter_complex "[0:v]setpts=(1/$2)*PTS[v];[0:a]atempo=$2[a]" -map "[v]" -map "[a]" \
+  "$1.speed-adjusted.mp4"
 
 echo "Speed adjustment completed"
