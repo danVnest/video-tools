@@ -26,9 +26,9 @@ def main():
         photos = get_person_photos(p)
         if not photos:
             continue
-        album_name = f"Unnamed person: {p.uuid} ({len(photos)})"
-        print(f"Creating album '{album_name}'")
-        album = PhotosAlbum(album_name)
+        album_name = p.uuid
+        print(f"Creating album '{album_name}' with {len(photos)} photos")
+        album = PhotosAlbum(f"Unnamed people and pets/{album_name}", split_folder="/")
         album.update(photos)
 
 
