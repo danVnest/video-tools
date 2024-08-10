@@ -390,17 +390,17 @@ def main():
             else:
                 print(f"Imported '{video["name"]}' to Photos library")
             video_paths_to_delete.append(video["path"])
-    choice = input(
-        "\nDo you want to delete the compressed videos that have now been imported? (y/N): "
-    )
-    if choice.lower().startswith("y"):
-        for video_path in video_paths_to_delete:
-            os.remove(video_path)
-        if not any(
-            file for file in os.scandir(args.export_dir) if file.name != ".DS_Store"
-        ):
-            shutil.rmtree(args.export_dir, ignore_errors=True)
-    print("\nProcess completed")
+        choice = input(
+            "\nDo you want to delete the compressed videos that have now been imported? (y/N): "
+        )
+        if choice.lower().startswith("y"):
+            for video_path in video_paths_to_delete:
+                os.remove(video_path)
+            if not any(
+                file for file in os.scandir(args.export_dir) if file.name != ".DS_Store"
+            ):
+                shutil.rmtree(args.export_dir, ignore_errors=True)
+        print("\nProcess completed")
 
 
 if __name__ == "__main__":
