@@ -361,7 +361,7 @@ def main():
             return
         video_paths_to_delete = []
         for video in compressed_videos:
-            if photos_library.query(osxphotos.QueryOptions(name=video["name"])):
+            if photos_library.query(osxphotos.QueryOptions(name=[video["name"]])):
                 print(
                     f"Warning: '{video['name']}' already exists in the Photos library, skipping"
                 )
