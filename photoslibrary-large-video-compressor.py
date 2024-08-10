@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 
 import osxphotos
 from osxphotos.cli.push_exif import set_options_from_metadata
@@ -88,7 +87,7 @@ def check_arguments(args):
         sys.exit(1)
     if args.export_dir is None:
         args.export_dir = os.path.join(os.getcwd(), "large-videos")
-    Path(args.export_dir).mkdir(parents=True, exist_ok=True)
+    os.makedirs(args.export_dir, exist_ok=True)
     if args.input_dir:
         if not os.path.isdir(args.input_dir):
             print(f"Error: Input directory does not exist: '{args.input_dir}'")
