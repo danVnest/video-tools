@@ -109,6 +109,7 @@ def compress_video(
     export_dir: str,
     crf: int,
 ) -> str | None:
+    # Generate compressed video filenames
     compressed_video_name = (
         original_video.original_filename
         if original_video
@@ -126,7 +127,12 @@ def compress_video(
         compressed_video_path += "_unmatched"
     elif original_video.uuid not in compressed_video_name:
         compressed_video_path += f"_{original_video.uuid}"
+    temporary_compressed_video_path = (
+        compressed_video_path + "_compression_in_progress.mp4"
+    )
     compressed_video_path += "_compressed.mp4"
+
+    # Handle any existing compressed videos
     if os.path.isfile(compressed_video_path):
         print(
             f"Warning: not compressing '{compressed_video_name}' as it has been done previously\n(see '{compressed_video_path}')"
@@ -140,10 +146,19 @@ def compress_video(
         if not os.path.exists(compressed_video_path):
             shutil.copy2(input_path, compressed_video_path)
         return compressed_video_path
+    if os.path.isfile(temporary_compressed_video_path):
+        print(
+            f"Warning: not compressing '{compressed_video_name}' as an incomplete compressed video exists\n(see '{temporary_compressed_video_path}')"
+        )
+        return None
+    if input_path.endswith("_compression_in_progress.mp4"):
+        print(
+            f"Warning: not compressing '{compressed_video_name}' as it appears to be an incomplete compression"
+        )
+        return None
+
+    # Compress the video
     print(f"Compressing '{compressed_video_name}'")
-    temporary_compressed_video_path = (
-        compressed_video_path + ".compression_in_progress.mp4"
-    )
     try:
         subprocess.run(
             [
@@ -179,6 +194,8 @@ def compress_video(
         os.remove(temporary_compressed_video_path)
         return None
     os.rename(temporary_compressed_video_path, compressed_video_path)
+
+    # Copy remaining EXIF data from original video to compressed video
     try:
         if original_video:
             write_results = osxphotos.ExifWriter(original_video).write_exif_data(
@@ -213,6 +230,8 @@ def compress_video(
         print(
             f"Warning: Issue writing EXIF data to '{compressed_video_name}', check manually"
         )
+
+    # Report compression results
     compressed_size = os.path.getsize(compressed_video_path)
     compression_ratio = compressed_size / os.path.getsize(input_path)
     print(
