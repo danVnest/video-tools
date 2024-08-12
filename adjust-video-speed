@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ $# -ne 2 ]; then
-    echo "ERROR: A video path and a speed (i.e. use '3' for a 3x speed increase) must be specified as the first and second arguments respectively."
+    echo "ERROR: A video path and a speed (i.e. use '3' for a 3x speed increase) must be specified as the first and second arguments respectively"
     exit 1
 fi
 
 if ! [[ $2 =~ ^[0-9]+(\.[0-9]+)?$ ]] || (($(echo "$2 < 0.5" | bc -l) || $(echo "$2 > 100" | bc -l) || $(echo "$2 == 1" | bc -l))); then
-    echo "ERROR: Speed (the second argument) must be a number between 0.5 and 100, excluding 1."
+    echo "ERROR: Speed (the second argument) must be a number between 0.5 and 100, excluding 1"
     exit 1
 fi
 
