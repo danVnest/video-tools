@@ -1,14 +1,12 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]
-then
+if [ $# -lt 2 ]; then
   echo "ERROR: at least 2 video paths must be specified as arguments"
   exit 1
 fi
 
-for video in "$@"
-do
-  echo file \'$video\' >> merge-videos.txt
+for video in "$@"; do
+  echo file \'$video\' >>merge-videos.txt
 done
 
 # TODO: make this work for videos of different types and speeds
