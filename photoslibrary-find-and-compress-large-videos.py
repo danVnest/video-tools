@@ -213,18 +213,6 @@ def compress_video(
                 raise Exception(
                     f"Warning: Issue writing EXIF data to '{compressed_video_name}'"
                 )
-        else:
-            subprocess.run(
-                [
-                    "exiftool",
-                    "-extractEmbedded",
-                    "-overwrite_original",
-                    "-TagsFromFile",
-                    input_path,
-                    compressed_video_path,
-                ],
-                check=True,
-            )
     except (subprocess.CalledProcessError, Exception):
         print(
             f"Warning: Issue writing EXIF data to '{compressed_video_name}', check manually"
