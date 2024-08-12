@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from osxphotos import PhotoInfo, PhotosDB
 from osxphotos.cli.verbose import verbose_print
 from osxphotos.photosalbum import PhotosAlbum

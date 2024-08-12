@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON
 from osxphotos.cli.verbose import verbose_print

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BIN_DIR="/usr/local/bin"
+find . -name "*.sh" -o -name "*.py" | while read -r script; do
+    script_name=$(basename "$script")
+    dest_name="${script_name%.*}"
+    cp "$script" "$BIN_DIR/$dest_name"
+    chmod +x "$BIN_DIR/$dest_name"
+done
+
+echo "Updated scripts added to $BIN_DIR"
