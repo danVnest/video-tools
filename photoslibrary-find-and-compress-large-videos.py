@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 import shutil
 import subprocess
 import sys
+from argparse import ArgumentParser
+from datetime import timedelta
 
+import cv2
 import osxphotos
 from osxphotos.cli.push_exif import set_options_from_metadata
 from osxphotos.cli.verbose import verbose_print
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description="Compress and manage large video files in Apple Photos library."
     )
     parser.add_argument(
@@ -159,7 +161,13 @@ def compress_video(
         return None
 
     # Compress the video
-    print(f"Compressing '{compressed_video_name}'")
+    video_stats = cv2.VideoCapture(input_path)
+    frames = video_stats.get(cv2.CAP_PROP_FRAME_COUNT)
+    fps = video_stats.get(cv2.CAP_PROP_FPS)
+    duration = frames / fps if fps != 0 else 0
+    print(f"Video duration is ≈{timedelta(seconds=duration)}, with ≈{frames} frames")
+    print(f"Compression time will be ≈{frames/5/60:.01f} minutes @ 5fps")
+    input_filesize = os.path.getsize(input_path)
     try:
         subprocess.run(
             [
@@ -197,32 +205,26 @@ def compress_video(
     os.rename(temporary_compressed_video_path, compressed_video_path)
 
     # Copy remaining EXIF data from original video to compressed video
-    try:
-        if original_video:
-            write_results = osxphotos.ExifWriter(original_video).write_exif_data(
-                compressed_video_path,
-                set_options_from_metadata(
-                    osxphotos.exifwriter.ExifOptions(
-                        favorite_rating=True,
-                        use_persons_as_keywords=True,
-                        exiftool_flags=["-extractEmbedded"],
-                    ),
-                    ["all"],
+    if original_video:
+        write_results = osxphotos.ExifWriter(original_video).write_exif_data(
+            compressed_video_path,
+            set_options_from_metadata(
+                osxphotos.exifwriter.ExifOptions(
+                    favorite_rating=True,
+                    use_persons_as_keywords=True,
+                    exiftool_flags=["-extractEmbedded"],
                 ),
-            )
-            if write_results[0] or write_results[1]:
-                print(str(write_results))
-                raise Exception(
-                    f"Warning: Issue writing EXIF data to '{compressed_video_name}'"
-                )
-    except (subprocess.CalledProcessError, Exception):
-        print(
-            f"Warning: Issue writing EXIF data to '{compressed_video_name}', check manually"
+                ["all"],
+            ),
         )
+        if write_results[0] or write_results[1]:
+            print(
+                f"Warning: Issue writing EXIF data to '{compressed_video_name}', check manually"
+            )
 
     # Report compression results
     compressed_size = os.path.getsize(compressed_video_path)
-    compression_ratio = compressed_size / os.path.getsize(input_path)
+    compression_ratio = compressed_size / input_filesize
     print(
         f"'{compressed_video_name}' compressed to {compressed_size / (1024 * 1024):.2f}MB "
         f"({compression_ratio:.2f}x the size of the original)"
@@ -273,8 +275,8 @@ def main():
         sys.exit(1)
     elif video_count < args.num_videos:
         print(
-            f"Only {video_count} videos were found which is less than the limit "
-            f"specified ({args.num_videos})\n"
+            f"\nOnly {video_count} videos were found which is less than the "
+            f"specified limit of {args.num_videos}"
         )
     elif len(input_videos) > args.num_videos:
         input_videos = input_videos[: args.num_videos]
@@ -282,7 +284,7 @@ def main():
         query_videos = query_videos[: args.num_videos]
 
     # List video names and sizes only if specified
-    print(f"Details of the {len(input_videos) + len(query_videos)} largest videos:")
+    print(f"\nDetails of the {len(input_videos) + len(query_videos)} largest videos:")
     for video in input_videos:
         message_start = f"{video['size'] / (1024 * 1024):.2f}MB = '{video['name']}'"
         if video["original"] is None:
@@ -297,11 +299,16 @@ def main():
         )
     if args.list_only:
         return
-    print("\n")
 
     # Compress videos
+    print(f"\nCompressing {len(input_videos) + len(query_videos)} videos")
     compressed_videos = []
+    video_index = 1
     for video in input_videos:
+        print(
+            f"\nCompressing '{video["original"].original_filename if video["original"] else video["name"]}' "
+            f"- video {video_index} of {len(input_videos)}"
+        )
         compressed_video_path = compress_video(
             video["path"], video["original"], args.export_dir, args.crf
         )
@@ -317,10 +324,14 @@ def main():
                     "original": video["original"],
                 }
             )
+        video_index += 1
     for video in query_videos:
+        print(
+            f"\nCompressing '{video.original_filename}' - video {video_index} of {len(input_videos)}"
+        )
         if video.path is None:
             print(
-                f"Warning: '{video.original_filename}' not downloaded, skipping compression"
+                f"Warning: '{video.original_filename}' not downloaded to library, skipping compression"
             )
             continue
         compressed_video_path = compress_video(
@@ -339,6 +350,7 @@ def main():
                     "original": video,
                 }
             )
+        video_index += 1
 
     # Replace original videos if specified
     if args.replace_original:
