@@ -333,7 +333,7 @@ def main():
         video_index += 1
     for video in query_videos:
         print(
-            f"\nCompressing '{video.original_filename}' - video {video_index} of {len(input_videos)}"
+            f"\nCompressing '{video.original_filename}' - video {video_index} of {len(query_videos)}"
         )
         if video.path is None:
             print(
