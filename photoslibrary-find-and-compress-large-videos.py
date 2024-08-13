@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import sys
 from argparse import ArgumentParser
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import cv2
 import osxphotos
@@ -162,12 +162,18 @@ def compress_video(
 
     # Compress the video
     video_stats = cv2.VideoCapture(input_path)
-    frames = video_stats.get(cv2.CAP_PROP_FRAME_COUNT)
+    frames = int(video_stats.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = video_stats.get(cv2.CAP_PROP_FPS)
-    duration = frames / fps if fps != 0 else 0
-    print(f"Video duration is ≈{timedelta(seconds=duration)}, with ≈{frames} frames")
-    print(f"Compression time will be ≈{frames/5/60:.01f} minutes @ 5fps")
-    input_filesize = os.path.getsize(input_path)
+    duration = round(frames / fps) if fps != 0 else 0
+    compression_time = frames / 5 / 60
+    print(
+        f"Video has {frames:.0f} frames and a duration of 0{timedelta(seconds=duration)}"
+    )
+    print(
+        f"Compression estimated to complete at {(datetime.now() + timedelta(minutes=compression_time)).strftime("%I:%M %p")} "
+        f"(in {compression_time:.1f} minutes, assuming compression runs at 5fps)"
+    )
+    start_time = datetime.now()
     try:
         subprocess.run(
             [
@@ -224,10 +230,10 @@ def compress_video(
 
     # Report compression results
     compressed_size = os.path.getsize(compressed_video_path)
-    compression_ratio = compressed_size / input_filesize
+    compression_ratio = compressed_size / os.path.getsize(input_path)
     print(
         f"'{compressed_video_name}' compressed to {compressed_size / (1024 * 1024):.2f}MB "
-        f"({compression_ratio:.2f}x the size of the original)"
+        f"({compression_ratio:.2f}x the size of the original) in {(datetime.now() - start_time).total_seconds()/60:.1f} minutes"
     )
     return compressed_video_path
 
