@@ -7,5 +7,4 @@ find . -name "*.sh" -o -name "*.py" | while read -r script; do
     cp "$script" "$BIN_DIR/$dest_name"
     chmod +x "$BIN_DIR/$dest_name"
 done
-
 echo "Updated scripts added to $BIN_DIR"

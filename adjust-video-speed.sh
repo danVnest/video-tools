@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ $# -ne 2 ]; then
     echo "ERROR: A video path and a speed (i.e. use '3' for a 3x speed increase) must be specified as the first and second arguments respectively"
     exit 1

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ $# -lt 1 ]; then
     echo "ERROR: At least 1 video path must be specified as an argument"
     exit 1

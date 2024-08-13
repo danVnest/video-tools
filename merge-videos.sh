@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ $# -lt 2 ]; then
   echo "ERROR: at least 2 video paths must be specified as arguments"
   exit 1
