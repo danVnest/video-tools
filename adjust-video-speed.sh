@@ -14,5 +14,5 @@ ffmpeg -hide_banner -stats -loglevel error \
     -vcodec libx265 -x265-params log-level=error -pix_fmt yuv420p -vtag hvc1 -crf 28 \
     -movflags use_metadata_tags -map_metadata 0 \
     -filter_complex "[0:v]setpts=(1/$2)*PTS[v];[0:a]atempo=$2[a]" -map "[v]" -map "[a]" \
-    "$1.speed-adjusted.mp4"
+    "${1%.*}_$2x-speed.mp4"
 echo "Speed adjustment completed"
