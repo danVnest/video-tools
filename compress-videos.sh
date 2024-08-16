@@ -5,19 +5,31 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-echo "Compressing $# videos"
+total_original_size=0
+total_compressed_size=0
+if [ $# -gt 1 ]; then
+    for video_path in "$@"; do
+        size=$(stat -f%z "$video_path")
+        total_original_size=$((total_original_size + size))
+    done
+    echo "Compressing $# videos (total size is $(echo "scale=2; $total_original_size / 1024 / 1024" | bc)MB)"
+fi
 video_index=1
 for video_path in "$@"; do
-    filesize=$(stat -f%z "$video_path")
-    echo -e "\nCompressing $(basename "$video_path") ($(echo "scale=2; $filesize / 1024 / 1024" | bc)MB) - video $video_index of $#"
+    original_size=$(stat -f%z "$video_path")
+    echo -e "\nCompressing $(basename "$video_path") ($(echo "scale=2; $original_size / 1024 / 1024" | bc)MB) - video $video_index of $#"
     ffmpeg -hide_banner -stats -loglevel error \
         -i "$video_path" \
         -vcodec libx265 -x265-params log-level=error \
         -pix_fmt yuv420p -vtag hvc1 -crf 28 \
         -movflags use_metadata_tags -map_metadata 0 \
         "${video_path%.*}_compressed.mp4"
-    compressed_filesize=$(stat -f%z "${video_path%.*}_compressed.mp4")
-    echo "$(basename "$video_path") compressed to $(echo "scale=2; $compressed_filesize / 1024 / 1024" | bc)MB ($(echo "scale=2; $compressed_filesize / $filesize" | bc)x the size of the original)"
+    compressed_size=$(stat -f%z "${video_path%.*}_compressed.mp4")
+    total_compressed_size=$((total_compressed_size + compressed_size))
+    echo "$(basename "$video_path") compressed to $(echo "scale=2; $compressed_size / 1024 / 1024" | bc)MB ($(echo "scale=2; $compressed_size / $original_size" | bc)x the size of the original)"
     video_index=$((video_index + 1))
 done
-echo "Compression complete"
+echo -e "\nCompression complete"
+if [ $# -gt 1 ]; then
+    echo "Total size of all compressed videos is $(echo "scale=2; $total_compressed_size / 1024 / 1024" | bc)MB ($(echo "scale=2; $total_compressed_size / $total_original_size" | bc)x the size of the originals)"
+fi
