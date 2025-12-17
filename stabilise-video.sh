@@ -1,7 +1,23 @@
 #!/bin/bash
 
+function print_help {
+    echo "Usage: $(basename "$0") VIDEO_PATH"
+    echo "Stabilises a video by detecting motion and dynamically cropping slightly, saving alongside the original"
+}
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    print_help
+    exit 0
+fi
 if [ $# -ne 1 ]; then
     echo "ERROR: One video path must be specified"
+    echo ""
+    print_help
+    exit 1
+fi
+if [ ! -f "$1" ]; then
+    echo "ERROR: '$1' is not a file"
+    echo ""
+    print_help
     exit 1
 fi
 

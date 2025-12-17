@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# dependencies = ["opencv-python", "osxphotos"]
+# ///
 
 import os
 import shutil
@@ -376,6 +380,9 @@ def main():
         else:
             total_original_size -= video.original_filesize
         video_index += 1
+    if len(compressed_videos) == 0:
+        print("\nNo videos were compressed")
+        return
     total_compressed_size = sum(video["size"] for video in compressed_videos)
     print(
         f"\nThe {len(compressed_videos)} compressed videos total {total_compressed_size / (1024 * 1024):.0f}MB "

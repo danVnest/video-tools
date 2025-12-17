@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# dependencies = ["osxphotos"]
+# ///
 
 from osxphotos import PhotosDB
 from osxphotos._constants import _UNKNOWN_PERSON

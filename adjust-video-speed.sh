@@ -1,11 +1,33 @@
 #!/bin/bash
 
+function print_help {
+    echo "Usage: $(basename "$0") VIDEO_PATH SPEED"
+    echo "Adjusts the playback speed of a video, saving alongside the original"
+    echo ""
+    echo "Arguments:"
+    echo "  VIDEO_PATH    Path to the input video file"
+    echo "  SPEED         Speed multiplier (0.5-100, excluding 1)"
+}
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    print_help
+    exit 0
+fi
 if [ $# -ne 2 ]; then
     echo "ERROR: A video path and a speed (i.e. use '3' for a 3x speed increase) must be specified as the first and second arguments respectively"
+    echo ""
+    print_help
+    exit 1
+fi
+if [ ! -f "$1" ]; then
+    echo "ERROR: '$1' is not a file"
+    echo ""
+    print_help
     exit 1
 fi
 if ! [[ $2 =~ ^[0-9]+(\.[0-9]+)?$ ]] || (($(echo "$2 < 0.5" | bc -l) || $(echo "$2 > 100" | bc -l) || $(echo "$2 == 1" | bc -l))); then
     echo "ERROR: Speed (the second argument) must be a number between 0.5 and 100, excluding 1"
+    echo ""
+    print_help
     exit 1
 fi
 

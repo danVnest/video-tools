@@ -1,14 +1,13 @@
 #!/bin/bash
 
 if [[ $1 != "--ignore-reqs" ]]; then
-    if ! command -v brews &>/dev/null; then
-        echo "Python and ffmpeg are required, but Homebrew is not available for this script to install them"
-        echo "You can instead manually install these and the Python requirements listed in requirements.txt, then use './install.sh --ignore-reqs'"
+    if ! command -v brew &>/dev/null; then
+        echo "Python, uv, and ffmpeg are required, but Homebrew is not available for this script to install them"
+        echo "You can instead manually install these, then use './install.sh --ignore-reqs'"
         exit 1
     fi
     echo -e "Installing dependencies\n"
-    brew install python ffmpeg
-    pip3 install -r requirements.txt
+    brew install python uv ffmpeg --quiet
     echo -e "\nInstalling video tools\n"
 fi
 

@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# dependencies = ["osxphotos"]
+# ///
 
 from osxphotos import PhotoInfo, PhotosDB
 from osxphotos.cli.verbose import verbose_print

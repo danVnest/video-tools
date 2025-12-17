@@ -1,9 +1,27 @@
 #!/bin/bash
 
+function print_help {
+    echo "Usage: $(basename "$0") VIDEO_PATH_1 [VIDEO_PATH_2 ...]"
+    echo "Compresses one or more videos, saving alongside the original(s)"
+}
 if [ $# -lt 1 ]; then
     echo "ERROR: At least 1 video path must be specified as an argument"
+    echo ""
+    print_help
     exit 1
 fi
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    print_help  
+    exit 0
+fi
+for arg; do
+    if [ ! -f "$arg" ]; then
+        echo "ERROR: '$arg' is not a file"
+        echo ""
+        print_help
+        exit 1
+    fi
+done
 
 total_original_size=0
 total_compressed_size=0
