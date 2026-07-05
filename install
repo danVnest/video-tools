@@ -2,12 +2,14 @@
 
 if [[ $1 != "--ignore-reqs" ]]; then
     if ! command -v brew &>/dev/null; then
-        echo "Python, uv, and ffmpeg are required, but Homebrew is not available for this script to install them"
+        echo "Python, uv, ffmpeg, and libvidstab are required, but Homebrew is not available for this script to install them"
         echo "You can instead manually install these, then use './install.sh --ignore-reqs'"
         exit 1
     fi
     echo -e "Installing dependencies\n"
-    brew install python uv ffmpeg --quiet
+    brew install python uv libvidstab --quiet
+    brew tap homebrew-ffmpeg/ffmpeg --quiet
+    brew install homebrew-ffmpeg/ffmpeg/ffmpeg --with-libvidstab --quiet
     echo -e "\nInstalling video tools\n"
 fi
 
