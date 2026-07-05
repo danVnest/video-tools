@@ -169,13 +169,13 @@ def compress_video(
     frames = int(video_stats.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = video_stats.get(cv2.CAP_PROP_FPS)
     duration = round(frames / fps) if fps != 0 else 0
-    compression_time = frames / 5 / 60
+    compression_time = frames / 20 / 60
     print(
         f"Video has {frames:.0f} frames and a duration of 0{timedelta(seconds=duration)}"
     )
     print(
         f"Compression estimated to complete at {(datetime.now() + timedelta(minutes=compression_time)).strftime("%I:%M %p")} "
-        f"(in {compression_time:.1f} minutes, assuming compression runs at 5fps)"
+        f"(in {compression_time:.1f} minutes, assuming compression runs at 20fps)"
     )
     start_time = datetime.now()
     try:
